@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-const API = "http://localhost:5000/api/admin";
+const API_BASE = import.meta.env.VITE_API_BASE;
+const ADMIN_API = `${API_BASE}/api/admin`;
 
 export default function AdminLogin({ onSuccess }) {
   const [email, setEmail] = useState("");
@@ -11,7 +12,7 @@ export default function AdminLogin({ onSuccess }) {
 
   const login = async () => {
     setMsg("");
-    const res = await fetch(`${API}/auth/login`, {
+    const res = await fetch(`${ADMIN_API}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -23,7 +24,7 @@ export default function AdminLogin({ onSuccess }) {
 
   const sendCode = async () => {
     setMsg("");
-    const res = await fetch(`${API}/security/forgot-password`, {
+    const res = await fetch(`${ADMIN_API}/security/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -36,7 +37,7 @@ export default function AdminLogin({ onSuccess }) {
 
   const resetPassword = async () => {
     setMsg("");
-    const res = await fetch(`${API}/security/reset-password`, {
+    const res = await fetch(`${ADMIN_API}/security/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, newPassword: password }),

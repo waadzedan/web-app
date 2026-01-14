@@ -1,3 +1,10 @@
+// Navbar.jsx (UPDATED: added ThemeToggle button for Light/Dark mode)
+// ✅ מה הוספתי ולמה (בקצרה):
+// 1) import ThemeToggle — כדי להציג כפתור שמחליף Light/Dark (מפעיל/מסיר class "dark" על <html> דרך ThemeProvider)
+// 2) הוספתי <ThemeToggle /> בתוך ה־header — בלי לשנות שום לוגיקה/עיצוב אחר של הניווט
+
+import ThemeToggle from "./ThemeToggle"; // ✅ NEW: כפתור החלפה Light/Dark
+
 export default function Navbar({ view, onNavigate }) {
   const item = (key, label) => {
     const isActive = view === key;
@@ -22,7 +29,14 @@ export default function Navbar({ view, onNavigate }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#162A5A] border-b border-[#F5B301]/40 shadow-xl">
+    <header className="
+  sticky top-0 z-50 
+  bg-[#162A5A]          /* Light Mode - כחול בהיר */
+  dark:bg-[#0B1220]     /* Dark Mode - כחול כהה עמוק */
+  border-b border-[#F5B301]/40 
+  shadow-xl
+">
+
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
         {/* Logo & Brand Section */}
@@ -56,6 +70,11 @@ export default function Navbar({ view, onNavigate }) {
           
           {item("admin", "אזור מנהלת")}
         </nav>
+
+        {/* ✅ NEW: Theme Toggle (Light/Dark) */}
+        <div className="flex items-center">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

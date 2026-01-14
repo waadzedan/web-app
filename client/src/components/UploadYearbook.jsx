@@ -1,11 +1,10 @@
 import { useRef, useState } from "react";
 
-const API_BASE = "http://localhost:5000";
-
+const API_BASE = import.meta.env.VITE_API_BASE;
 export default function UploadYearbook() {
   const fileRef = useRef(null);
 
-  const [yearbookId, setYearbookId] = useState("");     // ID טכני
+  const [yearbookId, setYearbookId] = useState(""); // ID טכני
   const [yearbookLabel, setYearbookLabel] = useState(""); // שם תצוגה
   const [file, setFile] = useState(null);
 
@@ -30,8 +29,8 @@ export default function UploadYearbook() {
 
     try {
       const form = new FormData();
-      form.append("yearbookId", yearbookId);       // ID
-      form.append("yearbookLabel", yearbookLabel); // תצוגה
+      form.append("yearbookId", yearbookId);
+      form.append("yearbookLabel", yearbookLabel);
       form.append("file", file);
 
       const res = await fetch(`${API_BASE}/api/admin/upload/yearbook`, {
@@ -50,9 +49,7 @@ export default function UploadYearbook() {
         throw new Error("❌ השרת לא החזיר JSON תקין");
       }
 
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
+      if (!res.ok) throw new Error(data.error || "Upload failed");
 
       setMsg({ type: "ok", text: "✅ השנתון יובא ונשמר בהצלחה" });
       setFile(null);
@@ -65,34 +62,50 @@ export default function UploadYearbook() {
     }
   };
 
+  const inputCls =
+    "w-full rounded-xl border px-3 py-2 outline-none transition " +
+    "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 " +
+    "focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 " +
+    "dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400 " +
+    "dark:focus:ring-blue-400/25 dark:focus:border-blue-400";
+
   return (
-    <div className="border rounded-2xl p-4 bg-white space-y-4">
-      <div className="text-lg font-bold">📦 ייבוא שנתון (DOCX)</div>
+    <div
+      className={
+        "border rounded-2xl p-4 space-y-4 shadow-sm " +
+        "bg-white border-slate-200 " +
+        "dark:bg-slate-900 dark:border-slate-700"
+      }
+      dir="rtl"
+    >
+      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        📦 ייבוא שנתון (DOCX)
+      </div>
 
       {/* ID */}
       <div>
-        <label className="text-sm font-semibold block mb-1">
+        <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           מזהה שנתון (טכני)
         </label>
         <input
           dir="ltr"
-          className="w-full border rounded-xl px-3 py-2"
+          className={inputCls}
           placeholder="shnaton_tashpaz"
           value={yearbookId}
           onChange={(e) => setYearbookId(e.target.value)}
         />
-        <div className="text-[11px] text-gray-500 mt-1">
+        <div className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
           ⚠️ אנגלית בלבד, ללא רווחים
         </div>
       </div>
 
       {/* Label */}
       <div>
-        <label className="text-sm font-semibold block mb-1">
+        <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           שם תצוגה לסטודנטים
         </label>
         <input
-          className="w-full border rounded-xl px-3 py-2"
+          className={inputCls}
           placeholder='תשפ״ז'
           value={yearbookLabel}
           onChange={(e) => setYearbookLabel(e.target.value)}
@@ -112,13 +125,17 @@ export default function UploadYearbook() {
         <button
           type="button"
           onClick={chooseFile}
-          className="px-4 py-2 rounded-full border bg-gray-50 hover:bg-gray-100 text-sm"
+          className={
+            "px-4 py-2 rounded-full border text-sm transition " +
+            "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100 " +
+            "dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-700"
+          }
         >
           📄 בחירת קובץ DOCX
         </button>
 
         {file && (
-          <span dir="ltr" className="text-xs text-gray-600">
+          <span dir="ltr" className="text-xs text-slate-600 dark:text-slate-300">
             {file.name}
           </span>
         )}
@@ -127,16 +144,24 @@ export default function UploadYearbook() {
       <button
         onClick={upload}
         disabled={loading}
-        className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-60"
+        className={
+          "px-5 py-2 rounded-xl font-semibold transition " +
+          "bg-blue-600 text-white hover:bg-blue-700 " +
+          "disabled:opacity-60 disabled:cursor-not-allowed " +
+          "dark:bg-blue-500 dark:hover:bg-blue-600"
+        }
       >
         {loading ? "מייבא..." : "⬆️ העלאת השנתון"}
       </button>
 
       {msg.text && (
         <div
-          className={`text-sm ${
-            msg.type === "error" ? "text-red-600" : "text-green-600"
-          }`}
+          className={
+            "text-sm font-semibold " +
+            (msg.type === "error"
+              ? "text-red-600 dark:text-red-300"
+              : "text-green-600 dark:text-green-300")
+          }
         >
           {msg.text}
         </div>
@@ -144,3 +169,4 @@ export default function UploadYearbook() {
     </div>
   );
 }
+

@@ -27,7 +27,6 @@ router.get("/labs/:yearbook/:semester", async (req, res) => {
 
 /**
  * PUT – העלאה / החלפה מלאה של סמסטר
- * 🔥 מעדכן זמן רק ברמת השנה
  */
 router.put("/labs/:yearbook/:semester", async (req, res) => {
   const { yearbook, semester } = req.params;
@@ -35,7 +34,7 @@ router.put("/labs/:yearbook/:semester", async (req, res) => {
   const yearRef = db.collection("lab_schedule").doc(yearbook);
   const semRef = yearRef.collection("semesters").doc(String(semester));
 
-  // ✔️ עדכון השנה – זו "החותמת" לזמן
+ 
   await yearRef.set(
     {
       year: req.body?.yearLabel || yearbook,

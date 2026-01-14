@@ -1,21 +1,18 @@
 import { useRef, useState } from "react";
 
-const API_BASE = "http://localhost:5000";
-
+const API_BASE = import.meta.env.VITE_API_BASE;
 export default function UploadLabs() {
   const fileRef = useRef(null);
 
   const [yearId, setYearId] = useState("");
   const [yearLabel, setYearLabel] = useState("");
-  const [semester, setSemester] = useState("");   // ✅ חדש
+  const [semester, setSemester] = useState("");
   const [file, setFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
-  const chooseFile = () => {
-    fileRef.current?.click();
-  };
+  const chooseFile = () => fileRef.current?.click();
 
   const upload = async () => {
     if (!yearId || !yearLabel || !semester || !file) {
@@ -33,7 +30,7 @@ export default function UploadLabs() {
       const form = new FormData();
       form.append("yearId", yearId);
       form.append("yearLabel", yearLabel);
-      form.append("semester", semester);     // ✅ נשלח לשרת
+      form.append("semester", semester);
       form.append("file", file);
 
       const res = await fetch(`${API_BASE}/api/admin/upload/labs`, {
@@ -59,32 +56,58 @@ export default function UploadLabs() {
     }
   };
 
+  const inputCls =
+    "w-full rounded-xl border px-3 py-2 outline-none transition " +
+    "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 " +
+    "focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 " +
+    "dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400 " +
+    "dark:focus:ring-blue-400/25 dark:focus:border-blue-400";
+
+  const selectCls =
+    inputCls +
+    " appearance-none " +
+    "bg-[linear-gradient(45deg,transparent_50%,currentColor_50%),linear-gradient(135deg,currentColor_50%,transparent_50%)] " +
+    "bg-[length:10px_10px,10px_10px] bg-[position:calc(1rem)_50%,calc(1.4rem)_50%] bg-no-repeat " +
+    "pr-10";
+
   return (
-    <div className="border rounded-2xl p-4 bg-white space-y-4">
-      <div className="text-lg font-bold">📦 ייבוא לוח מעבדות (Excel)</div>
+    <div
+      className={
+        "border rounded-2xl p-4 space-y-4 shadow-sm " +
+        "bg-white border-slate-200 " +
+        "dark:bg-slate-900 dark:border-slate-700"
+      }
+      dir="rtl"
+    >
+      <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        📦 ייבוא לוח מעבדות (Excel)
+      </div>
 
       {/* Year */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-semibold block mb-1">
+          <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
             מזהה שנה (DB)
           </label>
           <input
             dir="ltr"
-            className="w-full border rounded-xl px-3 py-2"
+            className={inputCls}
             placeholder="tashpaz"
             value={yearId}
             onChange={(e) => setYearId(e.target.value)}
           />
+          <div className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
+            ⚠️ אנגלית בלבד, ללא רווחים
+          </div>
         </div>
 
         <div>
-          <label className="text-sm font-semibold block mb-1">
+          <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
             תווית שנה (לתצוגה)
           </label>
           <input
-            className="w-full border rounded-xl px-3 py-2"
-            placeholder="תשפ״ז"
+            className={inputCls}
+            placeholder='תשפ״ז'
             value={yearLabel}
             onChange={(e) => setYearLabel(e.target.value)}
           />
@@ -93,21 +116,29 @@ export default function UploadLabs() {
 
       {/* Semester */}
       <div>
-        <label className="text-sm font-semibold block mb-1">
+        <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           סמסטר
         </label>
-        <select
-          className="w-full border rounded-xl px-3 py-2"
-          value={semester}
-          onChange={(e) => setSemester(e.target.value)}
-        >
-          <option value="">בחרי סמסטר</option>
-          {[1,2,3,4,5,6,7,8].map((s) => (
-            <option key={s} value={s}>
-              סמסטר {s}
-            </option>
-          ))}
-        </select>
+
+        <div className="relative">
+          <select
+            className={selectCls}
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+          >
+            <option value="">בחרי סמסטר</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+              <option key={s} value={s}>
+                סמסטר {s}
+              </option>
+            ))}
+          </select>
+
+          {/* chevron */}
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300">
+            ▾
+          </span>
+        </div>
       </div>
 
       {/* File picker */}
@@ -123,13 +154,17 @@ export default function UploadLabs() {
         <button
           type="button"
           onClick={chooseFile}
-          className="px-4 py-2 rounded-full border bg-gray-50 hover:bg-gray-100 text-sm"
+          className={
+            "px-4 py-2 rounded-full border text-sm transition " +
+            "bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100 " +
+            "dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-700"
+          }
         >
           📊 בחירת קובץ Excel
         </button>
 
         {file && (
-          <span dir="ltr" className="text-xs text-gray-600">
+          <span dir="ltr" className="text-xs text-slate-600 dark:text-slate-300">
             {file.name}
           </span>
         )}
@@ -139,22 +174,31 @@ export default function UploadLabs() {
       <button
         onClick={upload}
         disabled={loading}
-        className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold disabled:opacity-60"
+        className={
+          "px-5 py-2 rounded-xl font-semibold transition " +
+          "bg-blue-600 text-white hover:bg-blue-700 " +
+          "disabled:opacity-60 disabled:cursor-not-allowed " +
+          "dark:bg-blue-500 dark:hover:bg-blue-600"
+        }
       >
         {loading ? "מייבא..." : "⬆️ ייבוא לוח מעבדות"}
       </button>
 
       {/* Warning */}
-      <div className="text-[11px] text-amber-600">
-        ⚠️ ייבוא לוח מעבדות ידרוס נתונים קיימים <strong>לאותה שנה ואותו סמסטר בלבד</strong>
+      <div className="text-[11px] text-amber-700 dark:text-amber-300">
+        ⚠️ ייבוא לוח מעבדות ידרוס נתונים קיימים{" "}
+        <strong>לאותה שנה ואותו סמסטר בלבד</strong>
       </div>
 
       {/* Message */}
       {msg.text && (
         <div
-          className={`text-sm ${
-            msg.type === "error" ? "text-red-600" : "text-green-600"
-          }`}
+          className={
+            "text-sm font-semibold " +
+            (msg.type === "error"
+              ? "text-red-600 dark:text-red-300"
+              : "text-green-600 dark:text-green-300")
+          }
         >
           {msg.text}
         </div>
@@ -162,3 +206,4 @@ export default function UploadLabs() {
     </div>
   );
 }
+

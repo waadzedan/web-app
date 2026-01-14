@@ -1,3 +1,8 @@
+// App.jsx (UPDATED: added dark-mode-aware background/text classes)
+// ✅ מה הוספתי ולמה (בקצרה):
+// 1) הוספתי dark:* למחלקות רקע/טקסט כדי שה־UI יראה נכון במצב Dark כשה-ThemeProvider מוסיף class "dark" ל-<html>
+// 2) לא שיניתי שום לוגיקה/ניווט/קומפוננטות — רק classes ב-2 wrappers
+
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -9,14 +14,14 @@ export default function App() {
   const [view, setView] = useState("home");
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {/* 🔑 התאמה לשמות ש-Navbar מצפה להם */}
       <Navbar view={view} onNavigate={setView} />
 
       {view === "home" && <Hero onStart={() => setView("chat")} />}
 
       {view !== "home" && (
-        <main className="bg-gradient-to-b from-blue-50 to-white min-h-screen">
+        <main className="bg-gradient-to-b from-blue-50 to-white dark:from-slate-950 dark:to-slate-900 min-h-screen">
           <div className="max-w-6xl mx-auto px-4 py-8">
             {view === "chat" && <ChatBot />}
             {view === "labs" && <LabsViewer />}
@@ -27,4 +32,5 @@ export default function App() {
     </div>
   );
 }
+
 

@@ -1,11 +1,13 @@
 import { useState } from "react";
 
-const API = "http://localhost:5000/api/admin/security";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function AdminSecurity({ adminId }) {
   const [newPassword, setNewPassword] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [msg, setMsg] = useState("");
+  const API = `${API_BASE}/api/admin/security`;
+
 
   const post = async (url, body) => {
     setMsg("");
