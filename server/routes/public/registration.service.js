@@ -302,11 +302,16 @@ export function buildAllAdvisorsAnswer(docs = []) {
         })
         .join("")}
 
-      <hr style="margin:14px 0; border:none; border-top:1px solid #e5e7eb;" />
+      <br/>
 
-      <div style="font-size:12px; color:#6b7280; text-align:center;">
-        ניתן למצוא את היועץ/ת האקדמי/ת שלך גם דרך התפריט למטה ⬇️
-      </div>
+      <p style="
+        font-size:13px;
+        color:#374151;
+        text-align:center;
+        margin-top:8px;
+      ">
+        ℹ️ ניתן למצוא את היועץ/ת האקדמי/ת שלך גם דרך התפריט למטה ⬇️
+      </p>
     </div>
   `;
 }
