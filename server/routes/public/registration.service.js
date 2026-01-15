@@ -287,6 +287,12 @@ export function buildAllAdvisorsAnswer(docs) {
             `• ${x.name} – <a href="mailto:${x.email}">${x.email}</a>`
           ).join("<br/>");
       }).join("<br/><br/>")}
+      
+      <hr style="margin:12px 0; border:none; border-top:1px solid #e5e7eb;" />
+
+      <div style="font-size:12px; color:#6b7280; text-align:center;">
+        ניתן למצוא את היועץ/ת האקדמי/ת שלך גם דרך התפריט למטה ⬇️
+      </div>
     </div>`;
 }
 
