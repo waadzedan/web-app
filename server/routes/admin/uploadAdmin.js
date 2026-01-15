@@ -2,10 +2,18 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import { exec } from "child_process";
-
+import os from "os";
 
 const router = express.Router();
 
+// בוחר פקודת Python לפי מערכת הפעלה
+// Windows → py
+// Linux / Render → python3
+const PYTHON_CMD = os.platform() === "win32" ? "py" : "python3";
+
+// ======================
+// Multer setup
+// ======================
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (_, file, cb) => {
@@ -15,38 +23,58 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post(
-  "/upload/yearbook",
-  upload.single("file"),
-  (req, res) => {
-    const { yearbookId, yearbookLabel } = req.body;
-    const filePath = req.file?.path;
+// ======================
+// Upload yearbook
+// ======================
+router.post("/upload/yearbook", upload.single("file"), (req, res) => {
+  const { yearbookId, yearbookLabel } = req.body;
+  const filePath = req.file?.path;
 
-    exec(
-      `py parsers/yearbook_parser.py "${filePath}" "${yearbookId}" "${yearbookLabel}"`,
-      (err, stdout, stderr) => {
-        if (err) return res.status(500).json({ error: stderr });
-        res.json({ ok: true });
-      }
-    );
+  if (!filePath) {
+    return res.status(400).json({ error: "No file uploaded" });
   }
-);
 
-router.post(
-  "/upload/labs",
-  upload.single("file"),
-  (req, res) => {
-    const { yearId, yearLabel, semester } = req.body;
-    const filePath = req.file?.path;
-
-    exec(
-      `py parsers/labs_parser.py "${filePath}" "${yearId}" "${yearLabel}" "${semester}"`,
-      (err, stdout, stderr) => {
-        if (err) return res.status(500).json({ error: stderr });
-        res.json({ ok: true });
+  exec(
+    `${PYTHON_CMD} parsers/yearbook_parser.py "${filePath}" "${yearbookId}" "${yearbookLabel}"`,
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error(stderr || err.message);
+        return res.status(500).json({
+          error: "Yearbook parser failed",
+          details: stderr || err.message,
+        });
       }
-    );
+
+      res.json({ ok: true });
+    }
+  );
+});
+
+// ======================
+// Upload labs
+// ======================
+router.post("/upload/labs", upload.single("file"), (req, res) => {
+  const { yearId, yearLabel, semester } = req.body;
+  const filePath = req.file?.path;
+
+  if (!filePath) {
+    return res.status(400).json({ error: "No file uploaded" });
   }
-);
+
+  exec(
+    `${PYTHON_CMD} parsers/labs_parser.py "${filePath}" "${yearId}" "${yearLabel}" "${semester}"`,
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error(stderr || err.message);
+        return res.status(500).json({
+          error: "Labs parser failed",
+          details: stderr || err.message,
+        });
+      }
+
+      res.json({ ok: true });
+    }
+  );
+});
 
 export default router;
