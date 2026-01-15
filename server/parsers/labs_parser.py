@@ -1,7 +1,6 @@
 import sys
 import re
 from pathlib import Path
-from datetime import datetime, date
 import os
 
 from openpyxl import load_workbook
@@ -25,7 +24,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 # ==============================
-# Required headers (table headers)
+# Required headers (UNCHANGED)
 # ==============================
 REQUIRED_HEADERS = {
     "staff": ["שם המרצה", "מרצה"],
@@ -40,31 +39,10 @@ REQUIRED_HEADERS = {
 # ==============================
 # Helpers
 # ==============================
-def norm(x) -> str:
+def norm(x):
     if x is None:
         return ""
     return re.sub(r"\s+", " ", str(x)).strip()
-
-def parse_date_to_iso(v) -> str:
-    if isinstance(v, (datetime, date)):
-        d = v.date() if isinstance(v, datetime) else v
-        return d.isoformat()
-
-    s = norm(v)
-    if not s:
-        return ""
-
-    m = re.match(r"^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$", s)
-    if m:
-        dd, mm, yy = map(int, m.groups())
-        if yy < 100:
-            yy += 2000
-        try:
-            return date(yy, mm, dd).isoformat()
-        except Exception:
-            return s
-
-    return s
 
 def build_header(ws, row, max_col):
     cells = [norm(ws.cell(row=row, column=c).value) for c in range(1, max_col + 1)]
@@ -80,10 +58,10 @@ def build_header(ws, row, max_col):
 
     return mapping, hits
 
-def is_table_header_row(hits: int) -> bool:
+def is_table_header_row(hits):
     return hits >= 5
 
-def extract_course_from_line(text: str):
+def extract_course_from_line(text):
     t = norm(text)
     if not t:
         return None, None
@@ -98,7 +76,7 @@ def extract_course_from_line(text: str):
 
     return None, None
 
-def find_course_title_near(ws, header_row: int, max_col: int):
+def find_course_title_near(ws, header_row, max_col):
     for r in range(header_row - 1, max(1, header_row - 8), -1):
         line = " ".join(
             norm(ws.cell(row=r, column=c).value)
@@ -117,7 +95,7 @@ def find_course_title_near(ws, header_row: int, max_col: int):
 def parse_workbook(path: Path, year_id: str, year_label: str, semester: str):
     wb = load_workbook(path, data_only=True)
 
-    # Root year doc — ⭐ updatedAt on every upload ⭐
+    # Root year doc
     year_ref = db.collection("lab_schedule").document(year_id)
     year_ref.set(
         {
@@ -127,7 +105,7 @@ def parse_workbook(path: Path, year_id: str, year_label: str, semester: str):
         merge=True,
     )
 
-    semester_doc_ref = year_ref.collection("semesters").document(str(semester))
+    semester_ref = year_ref.collection("semesters").document(str(semester))
     courses_map = {}
 
     for ws in wb.worksheets:
@@ -140,7 +118,7 @@ def parse_workbook(path: Path, year_id: str, year_label: str, semester: str):
                 continue
 
             course_code, course_name = find_course_title_near(ws, r, ws.max_column)
-            if not course_code or not course_name:
+            if not course_code:
                 r += 1
                 continue
 
@@ -155,24 +133,28 @@ def parse_workbook(path: Path, year_id: str, year_label: str, semester: str):
 
             rr = r + 1
             while rr <= ws.max_row:
-                session_name = norm(ws.cell(rr, header.get("sessionName", 0)).value) if header.get("sessionName") else ""
-                dval = ws.cell(rr, header.get("date", 0)).value if header.get("date") else None
-                dayval = norm(ws.cell(rr, header.get("day", 0)).value) if header.get("day") else ""
+                date_val = norm(ws.cell(rr, header.get("date", 0)).value)
+                day_val = norm(ws.cell(rr, header.get("day", 0)).value)
 
-                if not session_name and not norm(dval) and not dayval:
+                # session: prefer sessionNo, fallback to sessionName
+                session_val = ""
+                if header.get("sessionNo"):
+                    session_val = norm(ws.cell(rr, header["sessionNo"]).value)
+
+                if not session_val and header.get("sessionName"):
+                    session_val = norm(ws.cell(rr, header["sessionName"]).value)
+
+                if not session_val and not date_val and not day_val:
                     break
 
                 lab = {
-                    "date": parse_date_to_iso(dval),
-                    "day": dayval,
-                    "group": norm(ws.cell(rr, header.get("group", 0)).value) if header.get("group") else "",
-                    "time": norm(ws.cell(rr, header.get("time", 0)).value) if header.get("time") else "",
+                    "session": session_val,
+                    "date": date_val,
+                    "day": day_val,
+                    "group": norm(ws.cell(rr, header.get("group", 0)).value),
+                    "time": norm(ws.cell(rr, header.get("time", 0)).value),
                     "staff": [],
-                    "session": session_name,
                 }
-
-                if header.get("sessionNo"):
-                    lab["sessionNo"] = norm(ws.cell(rr, header["sessionNo"]).value)
 
                 if header.get("staff"):
                     staff = norm(ws.cell(rr, header["staff"]).value)
@@ -184,8 +166,7 @@ def parse_workbook(path: Path, year_id: str, year_label: str, semester: str):
 
             r = rr
 
-    # ⭐ Only this semester is replaced ⭐
-    semester_doc_ref.set(
+    semester_ref.set(
         {
             "semester": int(semester),
             "updatedAt": firestore.SERVER_TIMESTAMP,
