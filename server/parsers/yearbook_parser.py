@@ -1,12 +1,12 @@
 import sys
 import re
+import os
 from docx import Document
 import firebase_admin
 from firebase_admin import credentials, firestore
-import os
 
 # ==============================
-# Firebase init
+# Firebase init (ENV based)
 # ==============================
 if not firebase_admin._apps:
     cred = credentials.Certificate({
@@ -34,14 +34,26 @@ def is_course_code(text):
 def safe_cell(row, idx, dash_as_zero=False):
     if idx is None or idx >= len(row.cells):
         return None
+
     v = normalize(row.cells[idx].text)
     if v == "":
         return None
     if v == "-":
         return 0 if dash_as_zero else None
+
     if re.fullmatch(r"\d+(\.\d+)?", v):
         return float(v) if "." in v else int(v)
-    return v
+
+    return None
+
+def safe_hours(value):
+    """
+    מונע טעינת קוד קורס (כמו 11005) כשעות.
+    שעות הגיוניות הן 0–10.
+    """
+    if isinstance(value, (int, float)) and 0 <= value <= 10:
+        return value
+    return None
 
 def find_col(headers, *needles):
     for i, h in enumerate(headers):
@@ -57,7 +69,7 @@ def find_relation_col(headers):
     return None
 
 # ==============================
-# ⭐ RELATIONS – with underline support ⭐
+# Relations (underline support)
 # ==============================
 def extract_relations_from_docx_cell(cell, course_name_map):
     relations = []
@@ -71,11 +83,9 @@ def extract_relations_from_docx_cell(cell, course_name_map):
         if not codes:
             continue
 
-        # ⭐ detect underline on ANY run ⭐
         is_underlined = False
         for run in p.runs:
-            u = run.font.underline
-            if u is True or (u not in (None, False)):
+            if run.font.underline:
                 is_underlined = True
                 break
 
@@ -88,7 +98,6 @@ def extract_relations_from_docx_cell(cell, course_name_map):
                 "type": rel_type
             })
 
-    # remove duplicates (courseCode only – last wins)
     uniq = {}
     for r in relations:
         uniq[r["courseCode"]] = r
@@ -102,7 +111,6 @@ def process_docx(doc, yearbook_id, yearbook_label):
     table_map = {t._element: t for t in doc.tables}
 
     root = db.collection("yearbooks").document(yearbook_id)
-
     root.set(
         {
             "yearbookId": yearbook_id,
@@ -119,7 +127,7 @@ def process_docx(doc, yearbook_id, yearbook_label):
     pending_relations = []
 
     for block in doc.element.body:
-        # --- Paragraph: detect semester ---
+        # --- Detect semester ---
         if block.tag.endswith("p"):
             text = normalize("".join(t.text for t in block.xpath(".//w:t")))
             m = re.search(r"סמסטר\s*([1-8])", text)
@@ -132,7 +140,7 @@ def process_docx(doc, yearbook_id, yearbook_label):
                     )
                     created_semesters.add(current_sem)
 
-        # --- Table: courses ---
+        # --- Courses table ---
         elif block.tag.endswith("tbl") and current_sem:
             table = table_map.get(block)
             if not table or not table.rows:
@@ -143,11 +151,13 @@ def process_docx(doc, yearbook_id, yearbook_label):
                 continue
 
             code_i, name_i = 0, 1
-            lec_i = find_col(headers, "ה")
-            prac_i = find_col(headers, "ת")
-            lab_i = find_col(headers, "מ")
-            cred_i = find_col(headers, "נ")
-            rel_i = find_relation_col(headers)
+
+            # ✅ זיהוי נכון של עמודות
+            lec_i  = find_col(headers, "הרצאה", "ה")
+            prac_i = find_col(headers, "תרגול", "ת")
+            lab_i  = find_col(headers, "מעבדה", "מ")
+            cred_i = find_col(headers, 'נ"ז', "נקודות", "נ")
+            rel_i  = find_relation_col(headers)
 
             for row in table.rows[1:]:
                 code = normalize(row.cells[code_i].text)
@@ -165,19 +175,23 @@ def process_docx(doc, yearbook_id, yearbook_label):
                     .document(code)
                 )
 
+                lecture_hours  = safe_hours(safe_cell(row, lec_i, True))
+                practice_hours = safe_hours(safe_cell(row, prac_i, True))
+                lab_hours      = safe_hours(safe_cell(row, lab_i, True))
+
                 course_ref.set(
                     {
                         "courseCode": code,
                         "courseName": name,
-                        "lectureHours": safe_cell(row, lec_i, True),
-                        "practiceHours": safe_cell(row, prac_i, True),
-                        "labHours": safe_cell(row, lab_i, True),
+                        "lectureHours": lecture_hours,
+                        "practiceHours": practice_hours,
+                        "labHours": lab_hours,
                         "credits": safe_cell(row, cred_i),
                     },
                     merge=True,
                 )
 
-                # --- Relations (✔ with underline support) ---
+                # --- Relations ---
                 if rel_i is not None:
                     relations = extract_relations_from_docx_cell(
                         row.cells[rel_i],
@@ -204,13 +218,11 @@ def process_docx(doc, yearbook_id, yearbook_label):
         batch.commit()
 
 # ==============================
-# ENTRY POINT
+# Entry point
 # ==============================
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print(
-            "Usage: yearbook_parser.py <docx_path> <yearbook_id> <yearbook_label>"
-        )
+        print("Usage: yearbook_parser.py <docx_path> <yearbook_id> <yearbook_label>")
         sys.exit(1)
 
     file_path = sys.argv[1]

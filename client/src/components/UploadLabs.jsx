@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
+
 export default function UploadLabs() {
   const fileRef = useRef(null);
 
@@ -44,11 +45,20 @@ export default function UploadLabs() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
+      // ✅ הצלחה
       setMsg({ type: "ok", text: "✅ לוח המעבדות יובא בהצלחה" });
+
+      // איפוס states
       setFile(null);
       setYearId("");
       setYearLabel("");
       setSemester("");
+
+      // ⭐⭐ זה הפתרון לבעיה של צורך ב-Refresh ⭐⭐
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+
     } catch (e) {
       setMsg({ type: "error", text: e.message });
     } finally {
@@ -134,7 +144,6 @@ export default function UploadLabs() {
             ))}
           </select>
 
-          {/* chevron */}
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300">
             ▾
           </span>
@@ -170,7 +179,6 @@ export default function UploadLabs() {
         )}
       </div>
 
-      {/* Upload */}
       <button
         onClick={upload}
         disabled={loading}
@@ -184,13 +192,11 @@ export default function UploadLabs() {
         {loading ? "מייבא..." : "⬆️ ייבוא לוח מעבדות"}
       </button>
 
-      {/* Warning */}
       <div className="text-[11px] text-amber-700 dark:text-amber-300">
         ⚠️ ייבוא לוח מעבדות ידרוס נתונים קיימים{" "}
         <strong>לאותה שנה ואותו סמסטר בלבד</strong>
       </div>
 
-      {/* Message */}
       {msg.text && (
         <div
           className={
@@ -206,4 +212,3 @@ export default function UploadLabs() {
     </div>
   );
 }
-

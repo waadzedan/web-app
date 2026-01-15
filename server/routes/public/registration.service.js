@@ -172,16 +172,23 @@ export function buildRegistrationAnswer(intent, doc) {
   }
 
   /* ---------- ADVISORS ---------- */
-  if (intent === "advisors") {
-    const a = doc.contacts?.academicAdvisors || [];
-    return `
-      <div class="text-sm">
-        <b>יועצים אקדמיים – סמסטר ${sem}</b><br/><br/>
-        ${a.map(x =>
-          `• ${x.name} – <a href="mailto:${x.email}">${x.email}</a>`
-        ).join("<br/>")}
-      </div>`;
-  }
+ if (intent === "advisors") {
+  const a = doc.contacts?.academicAdvisors || [];
+  return `
+    <div class="text-sm">
+      <b>יועצים אקדמיים – סמסטר ${sem}</b><br/><br/>
+
+      ${a.map(x =>
+        `• ${x.name} – <a href="mailto:${x.email}">${x.email}</a>`
+      ).join("<br/>")}
+
+      <hr style="margin:12px 0; border:none; border-top:1px solid #e5e7eb;" />
+
+      <div style="font-size:12px; color:#6b7280; text-align:center;">
+        ניתן למצוא את היועץ/ת האקדמי/ת שלך גם דרך התפריט למטה ⬇️
+      </div>
+    </div>`;
+}
 
   /* ---------- LABS ---------- */
   if (intent === "labs") {

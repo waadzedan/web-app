@@ -1,6 +1,18 @@
 import { useRef, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
+
+/**
+ * מנקה גרשיים בעייתיים לפני שליחה לשרת
+ * לא משנה את ה-UI, רק את הערך שנשלח
+ */
+function sanitizeDisplayName(label) {
+  return label
+    .replace(/"/g, "״")   // גרשיים אנגליים → עבריים
+    .replace(/'/g, "׳")   // גרש אנגלי → עברי
+    .trim();
+}
+
 export default function UploadYearbook() {
   const fileRef = useRef(null);
 
@@ -30,7 +42,13 @@ export default function UploadYearbook() {
     try {
       const form = new FormData();
       form.append("yearbookId", yearbookId);
-      form.append("yearbookLabel", yearbookLabel);
+
+      // ⭐ השם נשלח נקי לגרשיים בעייתיים
+      form.append(
+        "yearbookLabel",
+        sanitizeDisplayName(yearbookLabel)
+      );
+
       form.append("file", file);
 
       const res = await fetch(`${API_BASE}/api/admin/upload/yearbook`, {
@@ -51,10 +69,19 @@ export default function UploadYearbook() {
 
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
+      // ✅ הצלחה
       setMsg({ type: "ok", text: "✅ השנתון יובא ונשמר בהצלחה" });
+
+      // איפוס states
       setFile(null);
       setYearbookId("");
       setYearbookLabel("");
+
+      // ⭐⭐ זה הפתרון לבעיה של "צריך Refresh" ⭐⭐
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+
     } catch (e) {
       setMsg({ type: "error", text: e.message });
     } finally {
@@ -106,7 +133,7 @@ export default function UploadYearbook() {
         </label>
         <input
           className={inputCls}
-          placeholder='תשפ״ז'
+          placeholder='תשפ"ז'
           value={yearbookLabel}
           onChange={(e) => setYearbookLabel(e.target.value)}
         />
@@ -169,4 +196,3 @@ export default function UploadYearbook() {
     </div>
   );
 }
-
