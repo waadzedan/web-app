@@ -275,25 +275,40 @@ export function buildRegistrationAnswer(intent, doc) {
 /* =============================
    Builders – ALL semesters
 ============================= */
-export function buildAllAdvisorsAnswer(docs) {
+export function buildAllAdvisorsAnswer(docs = []) {
+  if (!docs.length) {
+    return `<div class="text-sm">לא נמצאו יועצים אקדמיים.</div>`;
+  }
+
   return `
     <div class="text-sm">
       <b>יועצים אקדמיים לפי סמסטר</b><br/><br/>
-      ${docs.map(d => {
-        const a = d.contacts?.academicAdvisors || [];
-        if (!a.length) return "";
-        return `<b>סמסטר ${d.semesterNumber}</b><br/>` +
-          a.map(x =>
-            `• ${x.name} – <a href="mailto:${x.email}">${x.email}</a>`
-          ).join("<br/>");
-      }).join("<br/><br/>")}
-      
-      <hr style="margin:12px 0; border:none; border-top:1px solid #e5e7eb;" />
+
+      ${docs
+        .map(d => {
+          const a = d.contacts?.academicAdvisors || [];
+          if (!a.length) return "";
+
+          return `
+            <div style="margin-bottom:10px;">
+              <b>סמסטר ${d.semesterNumber}</b><br/>
+              ${a
+                .map(x =>
+                  `• ${x.name} – <a href="mailto:${x.email}">${x.email}</a>`
+                )
+                .join("<br/>")}
+            </div>
+          `;
+        })
+        .join("")}
+
+      <hr style="margin:14px 0; border:none; border-top:1px solid #e5e7eb;" />
 
       <div style="font-size:12px; color:#6b7280; text-align:center;">
         ניתן למצוא את היועץ/ת האקדמי/ת שלך גם דרך התפריט למטה ⬇️
       </div>
-    </div>`;
+    </div>
+  `;
 }
 
 export function buildAllLabsAnswer(docs) {
