@@ -30,8 +30,9 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:3000",
-      // אחרי הדיפלוי ל-Vercel להוסיף כאן:
-      // "https://YOUR-APP-NAME.vercel.app",
+      // אחרי הדיפלוי ל-Vercel  כאן:
+      "https://web-p7gov1qkv-nadeen-odehs-projects.vercel.app/"
+     
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
