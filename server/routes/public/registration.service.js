@@ -48,14 +48,34 @@ export function extractSemesterNumber(question = "") {
 ============================= */
 export async function classifyRegistrationIntent(question) {
   const prompt = `
-את מערכת שמסווגת שאלות על הנחיות רישום.
+את מערכת שמסווגת שאלות על הנחיות רישום אקדמי.
 
-החזירי JSON בלבד:
+החזירי JSON בלבד בפורמט:
 {
   "intent": "window" | "advisors" | "labs" | "links" | "credits"
           | "exemptions" | "contacts" | "mentors"
           | "internship" | "rules" | "general"
 }
+
+דוגמאות:
+
+שאלה: "מי היועצים שלי"
+תשובה: { "intent": "advisors" }
+
+שאלה: "מי היועצים בסמסטר 2"
+תשובה: { "intent": "advisors" }
+
+שאלה: "מי אחראי על מעבדות"
+תשובה: { "intent": "labs" }
+
+שאלה: "יש קישור להדרכת רישום?"
+תשובה: { "intent": "links" }
+
+שאלה: "כמה נ״ז צריך לתואר?"
+תשובה: { "intent": "credits" }
+
+שאלה: "מתי חלון הרישום?"
+תשובה: { "intent": "window" }
 
 שאלה:
 "${question}"
@@ -99,7 +119,7 @@ export function refineRegistrationIntent(intent, question) {
 
   if (q.includes("סטאז")) return "internship";
   if (q.includes("מעבדה")) return "labs";
-  if (q.includes("יועץ")) return "advisors";
+  if (q.match(/יועצ/)||q.includes("יועצים")) return "advisors";
   if (q.includes("פטור") || q.includes("חריג")) return "exemptions";
   if (q.includes("קישור") || q.includes("הדרכה")) return "links";
   if (q.includes("נז") || q.includes("165")) return "credits";

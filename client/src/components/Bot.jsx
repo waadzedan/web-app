@@ -1,6 +1,23 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+/**
+ * ChatBot.jsx (BIO-BOT)
+ * --------------------
+ * Student chat UI:
+ * - Guided flow: yearbook -> topic -> semester -> (advisor letter -> track)
+ * - Free-text questions sent to backend (/api/ask)
+ * - Course autocomplete (/api/courses/suggest)
+ * - Renders bot HTML via dangerouslySetInnerHTML (backend must sanitize HTML)
+ *
+ * Backend endpoints:
+ * - GET  /api/yearbooks
+ * - GET  /api/courses/suggest?yearbookId=&q=
+ * - POST /api/ask  { yearbookId, question }
+ * - GET  /api/requiredcourses/:yearbookId/semester_:n
+ * - GET  /api/advisor?lastNameLetter=&semester=&track=
+ */
+
 const API_BASE = import.meta.env.VITE_API_BASE;
 const TRACKS = [" מולקולרית-תרופתית", "מזון והסביבה"];
 const HEB_LETTERS = ["א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ", "ק", "ר", "ש", "ת"];
@@ -11,13 +28,17 @@ const EXCEPTION_FORM_URL = `${API_BASE}/files/טופס_רישום_או_ביטו�
 const ADVISOR_FORM_URL = `${API_BASE}/files/טופס_ייעוץ_לסטודנט.docx`;
 
 export default function ChatBot() {
+    // messages: [{id, sender:"user"|"bot", html:string}]  (bot uses HTML bubbles)
+
   const [messages, setMessages] = useState([]);
+  // input: free text input value
   const [input, setInput] = useState("");
+    // context: drives guided UI state (yearbook/topic/semester/advisor filters)
   const [context, setContext] = useState({
     yearbook: null,
     semesterNum: null,
     semesterKey: null,
-    topic: null,
+    topic: null, // null | "courses" | "advisor" | "advisor_input" | "track_input"
     lastNameLetter: null,
     track: null,
   });

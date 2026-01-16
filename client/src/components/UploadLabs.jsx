@@ -2,6 +2,23 @@ import { useRef, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
+/**
+ * UploadLabs.jsx
+ * ---------------
+ * Admin component for uploading lab schedules from an Excel file.
+ *
+ * Features:
+ * - Allows admin to select year ID, year label, semester, and Excel file.
+ * - Sends FormData to backend to import labs.
+ * - Displays success/error messages.
+ *
+ * Backend endpoint:
+ * - POST /api/admin/upload/labs  (expects FormData: yearId, yearLabel, semester, file)
+ *
+ * Auth:
+ * - Uses "x-admin-key" from sessionStorage for admin authorization.
+ */
+
 export default function UploadLabs() {
   const fileRef = useRef(null);
 
@@ -13,8 +30,15 @@ export default function UploadLabs() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
 
+  // Opens hidden file input
   const chooseFile = () => fileRef.current?.click();
 
+  /**
+   * upload()
+   * - Validates inputs.
+   * - Sends Excel file and metadata to backend.
+   * - Resets form on success.
+   */
   const upload = async () => {
     if (!yearId || !yearLabel || !semester || !file) {
       setMsg({
@@ -45,19 +69,14 @@ export default function UploadLabs() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
-      // ✅ הצלחה
       setMsg({ type: "ok", text: "✅ לוח המעבדות יובא בהצלחה" });
 
-      // איפוס states
+      // Reset form
       setFile(null);
       setYearId("");
       setYearLabel("");
       setSemester("");
-
-      // ⭐⭐ זה הפתרון לבעיה של צורך ב-Refresh ⭐⭐
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
+      if (fileRef.current) fileRef.current.value = "";
 
     } catch (e) {
       setMsg({ type: "error", text: e.message });
@@ -66,6 +85,7 @@ export default function UploadLabs() {
     }
   };
 
+  // ---------- UI styles ----------
   const inputCls =
     "w-full rounded-xl border px-3 py-2 outline-none transition " +
     "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 " +
@@ -93,7 +113,7 @@ export default function UploadLabs() {
         📦 ייבוא לוח מעבדות (Excel)
       </div>
 
-      {/* Year */}
+      {/* Year identifiers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
@@ -106,9 +126,6 @@ export default function UploadLabs() {
             value={yearId}
             onChange={(e) => setYearId(e.target.value)}
           />
-          <div className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-            ⚠️ אנגלית בלבד, ללא רווחים
-          </div>
         </div>
 
         <div>
@@ -124,12 +141,11 @@ export default function UploadLabs() {
         </div>
       </div>
 
-      {/* Semester */}
+      {/* Semester selection */}
       <div>
         <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           סמסטר
         </label>
-
         <div className="relative">
           <select
             className={selectCls}
@@ -143,14 +159,10 @@ export default function UploadLabs() {
               </option>
             ))}
           </select>
-
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-300">
-            ▾
-          </span>
         </div>
       </div>
 
-      {/* File picker */}
+      {/* File input */}
       <div className="flex items-center gap-3 flex-wrap">
         <input
           ref={fileRef}
@@ -179,6 +191,7 @@ export default function UploadLabs() {
         )}
       </div>
 
+      {/* Upload button */}
       <button
         onClick={upload}
         disabled={loading}
@@ -192,11 +205,12 @@ export default function UploadLabs() {
         {loading ? "מייבא..." : "⬆️ ייבוא לוח מעבדות"}
       </button>
 
+      {/* Warning */}
       <div className="text-[11px] text-amber-700 dark:text-amber-300">
-        ⚠️ ייבוא לוח מעבדות ידרוס נתונים קיימים{" "}
-        <strong>לאותה שנה ואותו סמסטר בלבד</strong>
+        ⚠️ Import overrides existing labs for the same year and semester.
       </div>
 
+      {/* Status message */}
       {msg.text && (
         <div
           className={

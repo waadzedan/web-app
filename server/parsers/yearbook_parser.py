@@ -4,7 +4,18 @@ import os
 from docx import Document
 import firebase_admin
 from firebase_admin import credentials, firestore
+"""
+yearbook_parser.py
 
+קורא קובץ Yearbook (DOCX) ומייבא אותו ל-Firestore:
+- מזהה סמסטרים
+- שומר קורסים (קוד, שם, שעות, נ"ז)
+- יוצר קשרי קורסים: קדם / צמוד
+- משלים שמות קורסים חסרים בקשרי קדם
+
+שימוש:
+python yearbook_parser.py <docx_path> <yearbook_id> <yearbook_label>
+"""
 # ==============================
 # Firebase init (ENV based)
 # ==============================
@@ -47,10 +58,6 @@ def safe_cell(row, idx, dash_as_zero=False):
     return None
 
 def safe_hours(value):
-    """
-    מונע טעינת קוד קורס (כמו 11005) כשעות.
-    שעות הגיוניות הן 0–10.
-    """
     if isinstance(value, (int, float)) and 0 <= value <= 10:
         return value
     return None

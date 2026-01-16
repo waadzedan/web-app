@@ -7,6 +7,18 @@ from openpyxl import load_workbook
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+"""
+labs_parser.py
+
+קורא קובץ Excel של לוחות מעבדות ומייבא ל-Firestore:
+- מזהה טבלאות לפי כותרות
+- משייך מעבדות לקורסים (קוד + שם)
+- שומר מפגשים: תאריך, יום, שעה, קבוצה, מרצה
+- תומך במספר גיליונות ובמבנים משתנים
+
+שימוש:
+python labs_parser.py <file_path> <year_id> <year_label> <semester>
+"""
 
 # ==============================
 # Firebase init

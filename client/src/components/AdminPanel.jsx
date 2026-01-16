@@ -4,8 +4,38 @@ import UploadLabs from "./UploadLabs.jsx";
 import AdminSecurity from "./AdminSecurityUI.jsx";
 import AdminLogin from "./AdminLogin.jsx";
 import AdminRegistrationGuidelines from "./AdminRegistrationGuidelines.jsx"; // ✅ NEW: קומפוננט ניהול הנחיות רישום
+/**
+ * AdminPanel.jsx
+ * --------------
+ * Main admin dashboard for BIO-BOT.
+ *
+ * Responsibilities:
+ * - Admin authentication (via AdminLogin) + session persistence (sessionStorage)
+ * - Admin security modal (AdminSecurityUI)
+ * - Tabs UI for managing:
+ *   1) Advisors (CRUD)
+ *   2) Labs schedule (load / edit table / save)
+ *   3) Yearbooks & required courses (CRUD)
+ *   4) Registration guidelines (AdminRegistrationGuidelines)
+ *
+ * Data Flow:
+ * - Uses `apiFetch()` wrapper for calling backend REST endpoints.
+ * - Uses `toast()` to show global status feedback (idle / ok / error).
+ * - Auto-loads data based on authentication and active tab.
+ */
 
 const API_BASE = import.meta.env.VITE_API_BASE;
+/**
+ * apiFetch(path, options)
+ * ----------------------
+ * Small wrapper around fetch() to:
+ * - Use API_BASE + path
+ * - Default JSON headers
+ * - Auto JSON.stringify(body)
+ * - Throw a readable Error when the API fails
+ *
+ * 
+ */
 async function apiFetch(path, options = {}) {
   const res = await fetch(API_BASE + path, {
     headers: {

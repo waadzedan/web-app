@@ -1,15 +1,44 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 
+/**
+ * LabsViewer.jsx
+ * --------------
+ * Student-facing labs schedule viewer.
+ *
+ * Features:
+ * - Loads available lab "years/yearbooks" from backend.
+ * - Loads labs for selected yearbook + semester.
+ * - Normalizes labs data into a flat list (buildFlat).
+ * - Supports filtering by course and groups/sorts labs by date.
+ * - Listens to a global "labs-updated" window event to refresh data.
+ *
+ * Backend endpoints:
+ * - GET  `${API_BASE}/api/labs-years`  -> { years: [{ id, label, ... }] }
+ * - GET  `${API_BASE}/api/labs/:yearbookId/:semester` -> labs data (nested or flat)
+ */
+
 const SEMESTERS = [2, 3, 4, 5, 6, 7];
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-
+/**
+ * formatDate(iso)
+ * - Converts "YYYY-MM-DD" into "DD/MM/YYYY" for display.
+ */
 const formatDate = (iso) => {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
   return d && m && y ? `${d}/${m}/${y}` : iso;
 };
 
+/**
+ * buildFlat(data, fallbackSemester)
+ * - Normalizes labs data returned from backend:
+ *   - If data.labsFlat exists -> uses it
+ *   - Else flattens nested structure:
+ *     { semesters: { "2": { courses: { "41012": { labs: [...] } } } } }
+ *     OR { courses: { ... } }
+ * - Ensures each lab row includes: semester, courseCode, courseName, ...lab fields.
+ */
 function buildFlat(data, fallbackSemester) {
   if (Array.isArray(data?.labsFlat)) return data.labsFlat;
 
@@ -32,15 +61,31 @@ function buildFlat(data, fallbackSemester) {
 }
 
 export default function LabsViewer() {
+  // Loaded yearbooks/years list from backend
   const [yearbooks, setYearbooks] = useState([]);
+
+  // Selected yearbook + semester
   const [yearbookId, setYearbookId] = useState("tashpav");
   const [semester, setSemester] = useState(2);
+
+  // Labs rows (flat)
   const [labs, setLabs] = useState([]);
+
+  // Course filter ("ALL" or a courseCode)
   const [courseFilter, setCourseFilter] = useState("ALL");
+
+  // UI states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Used to force refresh when an external "labs-updated" event occurs
   const [reloadKey, setReloadKey] = useState(0);
 
+  /**
+   * loadYears()
+   * - Fetches available lab years/yearbooks from backend.
+   * - Also returns the list so caller can decide default selection.
+   */
   const loadYears = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE}/api/labs-years`);
@@ -53,6 +98,7 @@ export default function LabsViewer() {
     }
   }, []);
 
+  // On mount: load yearbooks, and ensure selected yearbookId is valid
   useEffect(() => {
     loadYears().then((list) => {
       if (list.length && !list.some((y) => y.id === yearbookId)) {
@@ -61,6 +107,9 @@ export default function LabsViewer() {
     });
   }, [loadYears]);
 
+  /**
+   * Load labs whenever yearbookId/semester changes or reloadKey is incremented.
+   */
   useEffect(() => {
     const loadLabs = async () => {
       setLoading(true);
@@ -81,6 +130,11 @@ export default function LabsViewer() {
     loadLabs();
   }, [yearbookId, semester, reloadKey]);
 
+  /**
+   * Global refresh hook:
+   * - Listens to "labs-updated" event (e.g., triggered after admin edits labs).
+   * - Event detail may include { yearId, semester } to auto-select and reload.
+   */
   useEffect(() => {
     const onUpdated = async (e) => {
       const { yearId, semester: sem } = e?.detail || {};
@@ -93,31 +147,39 @@ export default function LabsViewer() {
     return () => window.removeEventListener("labs-updated", onUpdated);
   }, [loadYears]);
 
+  /**
+   * coursesList:
+   * - Unique list of courses present in current labs data
+   * - Used for course filter dropdown.
+   */
   const coursesList = useMemo(() => {
     const m = new Map();
     labs.forEach((l) => m.set(l.courseCode, l.courseName));
     return Array.from(m.entries()).map(([code, name]) => ({ code, name }));
   }, [labs]);
 
+  /**
+   * grouped:
+   * - Applies course filter
+   * - Sorts by date (earliest first)
+   * - Groups rows by courseCode
+   */
   const grouped = useMemo(() => {
-    // 1. סינון לפי קורס
-    const filtered = courseFilter === "ALL" ? labs : labs.filter(l => l.courseCode === courseFilter);
+    const filtered = courseFilter === "ALL" ? labs : labs.filter((l) => l.courseCode === courseFilter);
 
-    // 2. מיון מהמוקדם למאוחר
     const sorted = [...filtered].sort((a, b) => {
-      const dateA = a.date ? new Date(a.date) : new Date(0); // תאריך ריק ילך להתחלה
+      const dateA = a.date ? new Date(a.date) : new Date(0);
       const dateB = b.date ? new Date(b.date) : new Date(0);
       return dateA - dateB;
     });
 
-    // 3. קיבוץ לקבוצות לפי קורס (שומר על סדר המיון שביצענו)
     const groups = {};
-    sorted.forEach(l => {
+    sorted.forEach((l) => {
       if (!groups[l.courseCode]) {
         groups[l.courseCode] = {
           courseCode: l.courseCode,
           courseName: l.courseName,
-          rows: []
+          rows: [],
         };
       }
       groups[l.courseCode].rows.push(l);

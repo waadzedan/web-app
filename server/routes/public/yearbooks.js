@@ -2,7 +2,9 @@ import express from "express";
 import { db } from "../../server.js";
 
 const router = express.Router();
-
+/**
+ * מחזיר רשימת שנתונים (id + שם תצוגה)
+ */
 router.get("/yearbooks", async (req, res) => {
   try {
     const snap = await db.collection("yearbooks").get();
@@ -15,7 +17,11 @@ router.get("/yearbooks", async (req, res) => {
     res.status(500).json({ error: "failed to load yearbooks" });
   }
 });
-
+/**
+ * מחזיר קורסי חובה של סמסטר מסוים כולל קשרים (relations)
+ * yearbookId = שנתון
+ * semesterKey = סמסטר
+ */
 router.get("/requiredcourses/:yearbookId/:semesterKey", async (req, res) => {
   try {
     const { yearbookId, semesterKey } = req.params;

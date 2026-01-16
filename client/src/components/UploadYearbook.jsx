@@ -3,21 +3,38 @@ import { useRef, useState } from "react";
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 /**
- * מנקה גרשיים בעייתיים לפני שליחה לשרת
- * לא משנה את ה-UI, רק את הערך שנשלח
+ * UploadYearbook.jsx
+ * -------------------
+ * Admin component for uploading a Yearbook (DOCX file).
+ *
+ * Features:
+ * - Accepts technical yearbook ID, display label, and DOCX file.
+ * - Sanitizes label to avoid problematic quotation characters.
+ * - Sends FormData to backend for parsing and storage.
+ *
+ * Backend endpoint:
+ * - POST /api/admin/upload/yearbook
+ *
+ * Auth:
+ * - Uses "x-admin-key" from sessionStorage for admin authorization.
+ */
+
+/**
+ * Sanitizes display label before sending to server.
+ * Replaces problematic quote characters.
  */
 function sanitizeDisplayName(label) {
   return label
-    .replace(/"/g, "״")   // גרשיים אנגליים → עבריים
-    .replace(/'/g, "׳")   // גרש אנגלי → עברי
+    .replace(/"/g, "״")
+    .replace(/'/g, "׳")
     .trim();
 }
 
 export default function UploadYearbook() {
   const fileRef = useRef(null);
 
-  const [yearbookId, setYearbookId] = useState(""); // ID טכני
-  const [yearbookLabel, setYearbookLabel] = useState(""); // שם תצוגה
+  const [yearbookId, setYearbookId] = useState("");
+  const [yearbookLabel, setYearbookLabel] = useState("");
   const [file, setFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
@@ -27,6 +44,12 @@ export default function UploadYearbook() {
     fileRef.current?.click();
   };
 
+  /**
+   * upload()
+   * - Validates inputs.
+   * - Sends DOCX yearbook file to backend.
+   * - Resets form on success.
+   */
   const upload = async () => {
     if (!yearbookId || !yearbookLabel || !file) {
       setMsg({
@@ -42,13 +65,7 @@ export default function UploadYearbook() {
     try {
       const form = new FormData();
       form.append("yearbookId", yearbookId);
-
-      // ⭐ השם נשלח נקי לגרשיים בעייתיים
-      form.append(
-        "yearbookLabel",
-        sanitizeDisplayName(yearbookLabel)
-      );
-
+      form.append("yearbookLabel", sanitizeDisplayName(yearbookLabel));
       form.append("file", file);
 
       const res = await fetch(`${API_BASE}/api/admin/upload/yearbook`, {
@@ -64,23 +81,18 @@ export default function UploadYearbook() {
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error("❌ השרת לא החזיר JSON תקין");
+        throw new Error("❌ Server did not return valid JSON");
       }
 
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
-      // ✅ הצלחה
       setMsg({ type: "ok", text: "✅ השנתון יובא ונשמר בהצלחה" });
 
-      // איפוס states
+      // Reset form
       setFile(null);
       setYearbookId("");
       setYearbookLabel("");
-
-      // ⭐⭐ זה הפתרון לבעיה של "צריך Refresh" ⭐⭐
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
+      if (fileRef.current) fileRef.current.value = "";
 
     } catch (e) {
       setMsg({ type: "error", text: e.message });
@@ -109,7 +121,7 @@ export default function UploadYearbook() {
         📦 ייבוא שנתון (DOCX)
       </div>
 
-      {/* ID */}
+      {/* Yearbook ID */}
       <div>
         <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           מזהה שנתון (טכני)
@@ -121,12 +133,9 @@ export default function UploadYearbook() {
           value={yearbookId}
           onChange={(e) => setYearbookId(e.target.value)}
         />
-        <div className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-          ⚠️ אנגלית בלבד, ללא רווחים
-        </div>
       </div>
 
-      {/* Label */}
+      {/* Display Label */}
       <div>
         <label className="text-sm font-semibold block mb-1 text-slate-800 dark:text-slate-200">
           שם תצוגה לסטודנטים
@@ -139,7 +148,7 @@ export default function UploadYearbook() {
         />
       </div>
 
-      {/* File picker */}
+      {/* File Picker */}
       <div className="flex items-center gap-3 flex-wrap">
         <input
           ref={fileRef}

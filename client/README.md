@@ -20,18 +20,29 @@ The system provides **natural-language answers in Hebrew** about courses, prereq
 
 ## 🧠 What BIO-BOT Can Answer
 
-### 📘 Courses
-- Course name by code and vice versa  
-- Prerequisites (קורסי קדם)
-- Co-requisites (קורסים צמודים)
-- Can course A be taken before / with course B
+### 📘 Courses (Academic Logic)
 
-**Examples:**
-- `מה השם של קורס 11456?`
-- `אילו קורסי קדם יש לביוכימיה?`
-- `אפשר ללמוד אלגוריתמים לפני מבני נתונים?`
+Handled through course classification + Firestore relations.
 
----
+Supported:
+
+Course name ↔ course code
+
+Prerequisites (PREREQUISITE)
+
+Co-requisites (COREQUISITE)
+
+Can course A be taken before / in parallel / after course B
+
+Examples
+
+מה השם של קורס 11005?`
+
+מה קורסי הקדם של חדו״א 2?
+
+אפשר לקחת חדו״א 2 לפני אלגברה?
+
+
 
 ### 🗓️ Registration Guidelines
 Information is fetched from **Firestore – `registrationGuidelines` collection**.
@@ -68,7 +79,7 @@ Supported information:
 
 **Examples:**
 - `מתי יש מעבדה בביולוגיה מולקולרית?`
-- `מה השעה של המעבדה בסמסטר 2?`
+- `מתי יש מעבדה בסמסטר 2?`
 
 ---
 
@@ -118,5 +129,10 @@ If a student expresses emotional or academic distress, the system responds **emp
 Create a `.env` file inside the `server` directory:
 
 ```env
+# Google Gemini (AI intent classification)
 GEMINI_API_KEY=your_gemini_api_key
-ADMIN_KEY=your_admin_key
+
+# Firebase Admin SDK (Service Account – ENV based)
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=your_firebase_client_email
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
