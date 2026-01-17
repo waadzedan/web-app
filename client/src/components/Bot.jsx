@@ -19,7 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
  */
 
 const API_BASE = import.meta.env.VITE_API_BASE;
-const TRACKS = [" מולקולרית-תרופתית", "מזון והסביבה"];
+const TRACKS = ["מולקולרית-תרופתית", "מזון והסביבה"];
 const HEB_LETTERS = ["א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ", "ק", "ר", "ש", "ת"];
 
 const SECRETARY_PHONE = "04-9901927";
