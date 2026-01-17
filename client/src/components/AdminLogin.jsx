@@ -143,7 +143,7 @@ export default function AdminLogin({ onSuccess }) {
         </>
       )}
 
-      {/* Forgot Password Mode Buttons */}
+      {/* Forgot Password Mode Buttons **/}
       {mode === "forgot" && (
         <>
           <button
