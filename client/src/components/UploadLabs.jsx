@@ -14,9 +14,6 @@ const API_BASE = import.meta.env.VITE_API_BASE;
  *
  * Backend endpoint:
  * - POST /api/admin/upload/labs  (expects FormData: yearId, yearLabel, semester, file)
- *
- * Auth:
- * - Uses "x-admin-key" from sessionStorage for admin authorization.
  */
 
 export default function UploadLabs() {
@@ -60,9 +57,6 @@ export default function UploadLabs() {
 
       const res = await fetch(`${API_BASE}/api/admin/upload/labs`, {
         method: "POST",
-        headers: {
-          "x-admin-key": sessionStorage.getItem("bio_admin_key"),
-        },
         body: form,
       });
 

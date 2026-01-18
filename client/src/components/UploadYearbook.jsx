@@ -63,9 +63,6 @@ export default function UploadYearbook() {
 
       const res = await fetch(`${API_BASE}/api/admin/upload/yearbook`, {
         method: "POST",
-        headers: {
-          "x-admin-key": sessionStorage.getItem("bio_admin_key"),
-        },
         body: form,
       });
 
