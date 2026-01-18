@@ -1,7 +1,4 @@
-// App.jsx (UPDATED: added dark-mode-aware background/text classes)
-// ✅ מה הוספתי ולמה (בקצרה):
-// 1) הוספתי dark:* למחלקות רקע/טקסט כדי שה־UI יראה נכון במצב Dark כשה-ThemeProvider מוסיף class "dark" ל-<html>
-// 2) לא שיניתי שום לוגיקה/ניווט/קומפוננטות — רק classes ב-2 wrappers
+
 
 import { useState } from "react";
 import Navbar from "./components/Navbar";
