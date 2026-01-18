@@ -508,15 +508,16 @@ addBot(html + "</div>");
                     <button
                       key={idx}
                       className="w-full text-right px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-50 last:border-none flex justify-between items-center transition-colors dark:hover:bg-slate-800 dark:border-slate-900"
-                      onClick={() => {
-                        setInput(prev => {
-                          const parts = prev.trim().split(/\s+/);
-                          parts.pop();
-                          return [...parts, s.courseName].join(" ");
-                        });
-                        setSuggestions([]);
-                        setShowSuggestions(false);
-                      }}
+                     onMouseDown={(e) => {
+                      e.preventDefault(); 
+                      setInput(prev => {
+                        const parts = prev.trim().split(/\s+/);
+                        parts.pop();
+                        return [...parts, s.courseName].join(" ");
+                      });
+                      setSuggestions([]);
+                      setShowSuggestions(false);
+                    }}
                     >
                       <span className="font-medium text-gray-700 dark:text-slate-100">{s.courseName}</span>
                       <span className="text-xs font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded dark:text-slate-300 dark:bg-slate-800">{s.courseCode}</span>
