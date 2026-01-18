@@ -523,10 +523,10 @@ return (
     <div className="flex items-start justify-between gap-4 flex-wrap">
       <div className="space-y-1">
         <div className="text-2xl font-extrabold text-blue-700 dark:text-blue-300">
-          אזור מנהלת
+          אזור מנהל
         </div>
         <div className="text-sm text-gray-600 dark:text-slate-300">
-          ניהול יועצים · לוחות מעבדה · שנתון וקורסים
+         הנחיות רישום · ניהול יועצים · לוחות מעבדה · שנתון וקורסים
         </div>
       </div>
     </div>
@@ -542,7 +542,7 @@ return (
       ) : (
         <div className="space-y-3 text-center">
           <div className="text-sm font-semibold text-green-700 dark:text-emerald-300">
-            מחוברת כמנהלת ✅
+            מחובר כמנהל  ✅
           </div>
           <div className="text-xs text-gray-500 dark:text-slate-400">{admin.email}</div>
 
