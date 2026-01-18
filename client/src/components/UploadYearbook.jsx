@@ -14,14 +14,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
  *
  * Backend endpoint:
  * - POST /api/admin/upload/yearbook
- *
- * Auth:
- * - Uses "x-admin-key" from sessionStorage for admin authorization.
- */
-
-/**
- * Sanitizes display label before sending to server.
- * Replaces problematic quote characters.
+ 
  */
 function sanitizeDisplayName(label) {
   return label

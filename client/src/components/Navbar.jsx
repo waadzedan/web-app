@@ -75,7 +75,7 @@ export default function Navbar({ view, onNavigate }) {
 
           <div className="w-[1px] h-6 bg-white/10 mx-3" />
 
-          {item("admin", "אזור מנהלת")}
+          {item("admin", "אזור מנהל")}
         </nav>
 
         {/* Theme toggle button */}

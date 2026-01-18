@@ -397,7 +397,7 @@ export default function AdminRegistrationGuidelines({ apiFetch, toast }) {
         <div className="flex-grow">
           <Field
             label="מה יופיע לסטודנטים (הנחיה חשובה)"
-            hint="כתבי כאן את הכלל כפי שיופיע בעמוד ההנחיות."
+            hint="לכתוב כאן את הכלל כפי שיופיע בעמוד ההנחיות."
           >
             <TextArea
               value={r.text || ""}

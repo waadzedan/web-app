@@ -30,13 +30,7 @@ const formatDate = (iso) => {
   return d && m && y ? `${d}/${m}/${y}` : iso;
 };
 
-/**
- * buildFlat(data, fallbackSemester)
- * - Normalizes labs data returned from backend:
- *   - If data.labsFlat exists -> uses it
- *   - Else flattens nested structure:
- *     { semesters: { "2": { courses: { "41012": { labs: [...] } } } } }
- *     OR { courses: { ... } }
+/*
  * - Ensures each lab row includes: semester, courseCode, courseName, ...lab fields.
  */
 function buildFlat(data, fallbackSemester) {

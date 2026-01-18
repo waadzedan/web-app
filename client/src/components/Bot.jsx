@@ -229,7 +229,7 @@ addBot(html + "</div>");
     addUser(L);
     if (context.semesterNum >= 5) {
       setContext(p => ({ ...p, lastNameLetter: L, topic: "track_input" }));
-      addBot("<b class='font-sans'>בחרי התמחות:</b>");
+      addBot("<b class='font-sans'>בחר התמחות:</b>");
     } else {
       loadAdvisor(L, context.semesterNum, null);
     }
@@ -535,7 +535,7 @@ addBot(html + "</div>");
                 }}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // השהייה קלה כדי לאפשר לחיצה
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder={context.yearbook ? "שאלי על קורס (למשל: דרישות קדם לביוכימיה)..." : "אנא בחרי שנתון קודם..."}
+                placeholder={context.yearbook ? "שאל על קורס (למשל: דרישות קדם לביוכימיה)..." : "אנא בחר שנתון קודם..."}
                 className="
                   w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-sm
                   focus:ring-2 focus:ring-[#162A5A] focus:bg-white transition-all outline-none pr-14 shadow-inner font-sans
