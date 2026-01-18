@@ -182,7 +182,7 @@ data.courses.forEach((c) => {
     <div class="
       rounded-2xl border-r-4 border-[#162A5A]
       p-4 shadow-sm border
-      bg-white border-gray-100
+      bg-white
       text-gray-900
       dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100
     ">
@@ -414,7 +414,7 @@ addBot(html + "</div>");
                     ? "bg-[#3B82F6] text-white rounded-tl-none shadow-blue-100 font-sans dark:bg-blue-500"
                     : "bg-white border border-gray-200 text-gray-800 rounded-tr-none shadow-gray-100 font-sans dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 " +
                       // ✅ NEW: make injected bot HTML readable in dark mode
-                      "dark:[&_*]:text-slate-100 " +
+                      "dark:**:text-slate-100 " +
                       "dark:[&_.text-gray-700]:text-slate-200 dark:[&_.text-gray-600]:text-slate-300 dark:[&_.text-gray-500]:text-slate-400 dark:[&_.text-gray-400]:text-slate-500"
                 }`}
                 dangerouslySetInnerHTML={{ __html: m.html }}

@@ -565,7 +565,7 @@ return (
 
     {showSecurity && (
       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-slate-900 rounded-xl w-[380px] p-6 relative border border-gray-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-slate-900 rounded-xl w-96 p-6 relative border border-gray-200 dark:border-slate-700">
           <button
             className="absolute top-3 left-3 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
             onClick={() => setShowSecurity(false)}

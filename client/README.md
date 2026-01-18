@@ -34,7 +34,7 @@ Co-requisites (COREQUISITE)
 
 Can course A be taken before / in parallel / after course B
 
-Examples
+Examples:
 
 מה השם של קורס 11005?`
 

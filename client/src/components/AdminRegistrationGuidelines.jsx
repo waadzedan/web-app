@@ -160,7 +160,7 @@ function TextArea(props) {
         "transition-all duration-200 ease-in-out " +
         "focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none " +
         "dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700 dark:focus:border-indigo-500 dark:focus:bg-slate-800 " +
-        "resize-y min-h-[120px] " +
+        "resize-y min-h-30 " +
         (props.className || "")
       }
     />
@@ -394,7 +394,7 @@ export default function AdminRegistrationGuidelines({ apiFetch, toast }) {
       className="group relative bg-slate-50/50 rounded-xl p-4 border border-slate-200 transition-all hover:bg-white hover:border-indigo-200 hover:shadow-sm dark:bg-slate-800 dark:border-slate-700"
     >
       <div className="flex gap-4 items-start">
-        <div className="flex-grow">
+        <div className="grow">
           <Field
             label="מה יופיע לסטודנטים (הנחיה חשובה)"
             hint="לכתוב כאן את הכלל כפי שיופיע בעמוד ההנחיות."
@@ -407,7 +407,7 @@ export default function AdminRegistrationGuidelines({ apiFetch, toast }) {
                 updateItem("keyRules", idx, "text", e.target.value);
               }}
               placeholder="לדוגמה: חובה להירשם לקורסי חובה לפני בחירה חופשית..."
-              className="min-h-[110px] bg-white leading-6"
+              className="min-h-27.5 bg-white leading-6"
             />
           </Field>
 
@@ -454,7 +454,7 @@ export default function AdminRegistrationGuidelines({ apiFetch, toast }) {
                       />
                     </Field>
                   </div>
-                  <div className="w-full md:flex-grow">
+                  <div className="w-full md:grow">
                      <Field label="URL">
                       <TextInput
                         value={l.url || ""}
@@ -625,7 +625,7 @@ function ContactSection({ title, items = [], onAdd, onRemove, onChange, type }) 
                       <TextInput value={item.assignment?.lastNameFrom||""} onChange={(e)=>{const n={...item.assignment, lastNameFrom:e.target.value}; onChange(idx,"assignment",n)}} placeholder="א" className="py-1 px-2 text-center w-10" />
                       <span className="self-center text-slate-300">-</span>
                       <TextInput value={item.assignment?.lastNameTo||""} onChange={(e)=>{const n={...item.assignment, lastNameTo:e.target.value}; onChange(idx,"assignment",n)}} placeholder="ת" className="py-1 px-2 text-center w-10" />
-                      <TextInput value={item.assignment?.track||""} onChange={(e)=>{const n={...item.assignment, track:e.target.value}; onChange(idx,"assignment",n)}} placeholder="מסלול" className="py-1 px-2 flex-grow" />
+                      <TextInput value={item.assignment?.track||""} onChange={(e)=>{const n={...item.assignment, track:e.target.value}; onChange(idx,"assignment",n)}} placeholder="מסלול" className="py-1 px-2 grow" />
                    </div>
                  </div>
                )}
